@@ -1,0 +1,4 @@
+allowed_mail_clients:
+    192.168.1.1: example1.example.com                                   
+    192.168.1.2: example2.example.com           
+      

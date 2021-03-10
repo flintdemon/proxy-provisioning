@@ -1,0 +1,44 @@
+###Block for trusted proxy clients###########
+trusted_src:
+  - "192.168.0.1"    #Examples
+  - "192.168.0.2"    
+##############################################
+
+###Block for allowed ports####################
+safe_ports:
+  - 80      #http
+  - 21      #ftp
+  - 443     #https
+##############################################
+
+###Example Block for allowed destination domains######
+dstdomains:
+  - ".microsoft.com"
+  - ".windowsupdate.com"
+  - ".cisco.com"
+  - ".gitlab.com"
+  - ".ansible.com"
+##############################################
+
+###Custom acls for hosts with access without domain filtering and authentication
+host_acls_all_access:
+  localhost: "127.0.0.1"
+##############################################
+
+###Example custom acls for hosts with access without authentication but with domain filtering
+host_acls_url_access:
+  server1: "192.168.5.5"
+  server2: "192.168.5.6"
+##############################################
+
+#Auth Params block############################
+auth_params:
+  - "program /usr/lib64/squid/basic_ncsa_auth /etc/squid/squid_passwd"
+  - "children 5"
+  - "realm Squid proxy-caching web server"
+  - "credentialsttl 2 hours"
+  - "casesensitive off"
+############################################# 
+
+#If you use root proxy 
+cache_peer: ""

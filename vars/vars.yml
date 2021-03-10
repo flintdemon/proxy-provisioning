@@ -1,0 +1,21 @@
+proxy_service: squid
+mail_service: postfix
+proxy_package: squid
+mail_package: postfix
+httpd_tools_package: httpd-tools
+
+fw_service: firewalld
+fw_package: firewalld
+
+services:
+ - "{{ proxy_service }}"
+ - "{{ mail_service }}"
+ - "{{ fw_service }}"
+
+packages:
+ - "{{ mail_package }}"
+ - "{{ proxy_package }}"
+ - "{{ fw_package }}"
+ - "{{ httpd_tools_package }}"
+  
+
