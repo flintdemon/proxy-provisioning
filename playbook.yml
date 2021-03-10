@@ -1,0 +1,95 @@
+---
+- name: Setup Proxy Server
+  hosts: proxy
+  vars_files: 
+    - vars/vars.yml
+    - vars/squid_vars.yml
+    - vars/vault.yml
+    - vars/postfix_vars.yml
+  tasks:
+
+    #Install all Packages
+    - name: Required packages are present
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}"
+
+    #Config squid from the template
+    - name: Template squid config file
+      template:
+        src: templates/squid_template.j2
+        dest: /etc/squid/squid.conf
+        owner: root
+        group: squid
+        mode: 0640
+        backup: yes
+      notify:
+        - Restart proxy service
+
+    #Config hosts file from the template
+    - name: Template hosts file
+      template:
+        src: templates/hosts_template.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+
+     #Enable and start services
+    - name: Services are started and enabled
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop: "{{ services }}"
+
+    #Config postfix access file from the template
+    - name: Template postfix access file
+      template:
+        src: templates/postfix_access_template.j2
+        dest: /etc/postfix/access
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+      register: config_file
+      notify:
+        - Postmap command execution
+
+    #Copy postfix config file
+    - name: Copy postfix config file
+      copy:
+        src: templates/main.cf
+        dest: /etc/postfix/main.cf
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+      register: config_file
+      notify:
+        - Postmap command execution
+
+    #Open nessesary ports on the firewall
+    - name: Smtp port opened
+      firewalld:
+        service: smtp
+        permanent: yes
+        state: enabled
+
+    - name: 8080 proxy port opened
+      firewalld:
+        port: 8080/tcp
+        permanent: yes
+        state: enabled
+
+  #Add handlers
+  handlers:
+    - name: Restart proxy service
+      service:
+        name: "{{ proxy_service }}"
+        state: restarted
+
+    - name: Postmap command execution
+      shell: postmap "{{ config_file.dest }}"
