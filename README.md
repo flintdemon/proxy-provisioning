@@ -1,4 +1,4 @@
-# Example playbook for linux proxy server provisioning.
+# Example Ansible playbook for linux proxy server provisioning.
 Example proxy server has squid service for proxy and postfix email relay
 
 ## Squid Configuration.
