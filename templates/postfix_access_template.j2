@@ -1,0 +1,8 @@
+#Provisioned by Ansible
+
+localhost   OK
+{% for ip, fqdn in allowed_mail_clients.items() %}
+{{ fqdn }}  OK        
+{% endfor %}
+10  REJECT
+11  REJECT

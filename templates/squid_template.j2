@@ -1,0 +1,54 @@
+#Provisioned by Ansible
+
+{% for src in trusted_src %}
+acl TRUSTED_SOURCE src {{ src }}
+{% endfor %}
+
+{% for port in safe_ports %}
+acl Safe_ports port {{ port }}  
+{% endfor %}
+
+{% for param in auth_params %}
+auth_param basic {{ param }}
+{% endfor %}
+
+acl SERVER proxy_auth REQUIRED
+
+{% for url in dstdomains %}
+acl url1 dstdomain {{ url }}
+{% endfor %}
+
+{% for host, ip in host_acls_all_access.items() %}
+acl {{ host }} src {{ ip }}         
+{% endfor %}
+{% for host, ip in host_acls_url_access.items() %}  
+acl {{ host }} src {{ ip }}           
+{% endfor %}
+
+http_access deny !Safe_ports
+{% for host in host_acls_all_access %}   
+http_access allow {{ host }}          
+{% endfor %}
+{% for host in host_acls_url_access %}   
+http_access allow {{ host }} url1    
+{% endfor %}
+http_access allow TRUSTED_SOURCE url1 SERVER
+http_access deny all
+http_port 8080 
+
+never_direct allow all
+#sslproxy_cafile /etc/squid/ssl/squid.pem
+#sslproxy_capath /etc/squid/ssl/
+#sslproxy_flags DONT_VERIFY_PEER
+
+cache deny all
+
+cache_peer {{ cache_peer }} parent 8080 0 connect-timeout=5 no-query name=non_ssl_proxy default login={{ proxy_login }} connection-auth=on
+cache_peer {{ cache_peer }} parent 8080 0 connect-timeout=5 no-query name=ssl_proxy default login={{ proxy_login }} connection-auth=on originserver ssl sslflags=DONT_VERIFY_PEER
+access_log /var/log/squid/access.log
+access_log syslog:local2.info squid
+coredump_dir /var/spool/squid
+
+visible_hostname {{ hostname }}
+
+logformat squid %tl IP:%>a %ru err_code

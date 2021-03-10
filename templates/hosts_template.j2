@@ -1,0 +1,6 @@
+#Provisioned by Ansible
+
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+{% for ip, fqdn in allowed_mail_clients.items() %}
+{{ ip }}    {{ fqdn }}        
+{% endfor %}
